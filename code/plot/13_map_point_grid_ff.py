@@ -26,7 +26,7 @@ import metview as mv
 # dir_out (string): relative path of the directory containing the map plot with the point and gridded accumulated flash flood reports. Used only when "type_plot = file".
 
 # INPUT PARAMETERS
-the_date_start = datetime(2021,9,2,0)
+the_date_start = datetime(2021,9,1,0)
 mask_domain = [22,-130,52,-60]
 type_plot = "file"
 git_repo = "/ec/vol/ecpoint_dev/mofp/phd/probability_of_flash_flood"
