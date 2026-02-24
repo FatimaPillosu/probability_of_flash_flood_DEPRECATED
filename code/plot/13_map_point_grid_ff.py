@@ -159,4 +159,5 @@ if type_plot == "file":
       file_out = dir_out_temp + "/map_point_grid_ff_" + the_date_final.strftime("%Y%m%d") + "_" + the_date_final.strftime("%H")
       png = mv.png_output(output_width = 5000, output_name = file_out)
       mv.setoutput(png)
-mv.plot(geo_view, mask_geo, symb_gridpoints, grid_geo, symb_grid, point_geo, symb_point, title)
+# mv.plot(geo_view, mask_geo, symb_gridpoints, grid_geo, symb_grid, point_geo, symb_point, title)
+mv.plot(geo_view, mask_geo, point_geo, symb_point, title)
