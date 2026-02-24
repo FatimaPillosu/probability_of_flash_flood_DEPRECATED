@@ -27,8 +27,8 @@ import matplotlib.dates as mdates
 
 ###########################################################################################
 # INPUT PARAMETERS
-year_s = 2013
-year_f = 2024
+year_s = 2021
+year_f = 2021
 git_repo = "/ec/vol/ecpoint_dev/mofp/phd/probability_of_flash_flood"
 file_in_mask = "data/raw/mask/usa_era5.grib"
 dir_in = "data/processed/03_grid_acc_reports_ff"
@@ -87,7 +87,7 @@ for year in range(year_s, year_f+1):
       # Plot the histogram with the counts
       fig, ax = plt.subplots(figsize=(25, 8))
       rects1 = ax.bar(dates_all, count_point_ff_all, 0.5, color="red", align='center', label="Point")
-      rects2 = ax.bar(dates_all, count_grid_ff_all, 0.5, color="black", align='center', label="Grid")
+      # rects2 = ax.bar(dates_all, count_grid_ff_all, 0.5, color="black", align='center', label="Grid")
       ax.xaxis.set_major_locator(mdates.MonthLocator())
       ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
       plt.xticks(rotation=30)
