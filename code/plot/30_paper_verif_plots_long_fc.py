@@ -269,7 +269,7 @@ for model_name in model_name_list:
                   plt.tick_params(axis='x', colors='#333333', labelsize=28)
                   plt.tick_params(axis='y', colors='#333333', labelsize=28)
                   plt.xticks(np.arange(step_f_start, step_f_final + 1, 24))
-                  fmt = FuncFormatter(lambda val, pos: f"{val:.1f}".lstrip("0") if abs(val) < 1 else f"{val:.1f}")
+                  fmt = FuncFormatter(lambda val, pos: f"{val:.2f}".lstrip("0") if abs(val) < 1 else f"{val:.1f}")
                   ax = plt.gca()
                   ax.yaxis.set_major_formatter(fmt)
                   plt.grid(axis='y', linewidth=0.5, color='gainsboro')
