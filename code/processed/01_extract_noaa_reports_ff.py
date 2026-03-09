@@ -25,7 +25,7 @@ import pandas as pd
 # dir_out (string): relative path of the directory containing the extracted flash flood reports.
 
 # INPUT PARAMETERS
-year_s = 1950
+year_s = 2021
 year_f = 2024
 git_repo = "/ec/vol/ecpoint_dev/mofp/phd/probability_of_flash_flood"
 dir_in = "data/raw/obs/noaa_reports_ff"
@@ -113,14 +113,15 @@ print(f"Total number of flash flood events with lat/lon coordinates between {yea
 ff_withCoord_all_expanded = pd.concat([expand_row(row) for _, row in ff_withCoord_all.iterrows()], ignore_index=True)
 print(f"Total number of 'expanded' flash flood events with lat/lon coordinates between {year_s} and {year_f}: {len(ff_withCoord_all_expanded)}")
 
-# Saving the database with only flash flood reports and some metadata
-file_out = temp_dir_out + "/noaa_reports_ff.csv"
-ff_withCoord_all_expanded.to_csv(file_out, index=False)
-file_out = temp_dir_out + "/years"
-np.save(file_out, years_rep)
-file_out = temp_dir_out + "/counts_reports_all"
-np.save(file_out, num_rep_all)
-file_out = temp_dir_out + "/counts_reports_ff"
-np.save(file_out, num_rep_ff)
-file_out = temp_dir_out + "/counts_reports_ff_with_coord"
-np.save(file_out, num_rep_ff_withCoord)
+
+# # Saving the database with only flash flood reports and some metadata
+# file_out = temp_dir_out + "/noaa_reports_ff.csv"
+# ff_withCoord_all_expanded.to_csv(file_out, index=False)
+# file_out = temp_dir_out + "/years"
+# np.save(file_out, years_rep)
+# file_out = temp_dir_out + "/counts_reports_all"
+# np.save(file_out, num_rep_all)
+# file_out = temp_dir_out + "/counts_reports_ff"
+# np.save(file_out, num_rep_ff)
+# file_out = temp_dir_out + "/counts_reports_ff_with_coord"
+# np.save(file_out, num_rep_ff_withCoord)
