@@ -65,13 +65,17 @@ for loss_func in ["bce"]:
             os.makedirs(dir_out_temp, exist_ok=True)
 
             # Initialising the variables storing the overall scores
+            auprc_train_all = []
             auprc_test_all = []
+            aroc_train_all = []
             aroc_test_all = []
+            fb_train_all = []
             fb_test_all = []
 
             # Initialising the variables containing the distribution of forecast probabilities
             fc_prob_all = []
             fc_all = []
+            colour_all = []
             fc_prob_max_all = []
 
             # Computing the verification scores
@@ -80,44 +84,74 @@ for loss_func in ["bce"]:
                   print(f" - Plots for {ml_trained}")
 
                   # Reading the predictions and observations
+                  fc_prob_train = np.load(f"{dir_in_temp}/{ml_trained}/fc_train.npy") * 100
                   fc_prob_test = np.load(f"{dir_in_temp}/{ml_trained}/fc_test.npy") * 100
+                  obs_train = np.load(f"{dir_in_temp}/{ml_trained}/obs_train.npy")
                   obs_test = np.load(f"{dir_in_temp}/{ml_trained}/obs_test.npy")
                   prob_thr = np.load(f"{dir_in_temp}/{ml_trained}/best_thr.npy") * 100
+                  fc_train = fc_prob_train >= prob_thr
                   fc_test = fc_prob_test >= prob_thr
+
+                  fc_all.append(np.sum(fc_train) / len(fc_train) * 100)
                   fc_all.append(np.sum(fc_test) / len(fc_test) * 100)
+
+                  fc_prob_all.append(fc_prob_train)
                   fc_prob_all.append(fc_prob_test)
+
+                  fc_prob_max_all.append(np.max(fc_prob_train))
                   fc_prob_max_all.append(np.max(fc_prob_test))
 
+                  colour_all.append("#800080")
+                  colour_all.append("#00B0F0")
+
                   # Computing the contingency table
+                  h_train, fa_train, m_train, cn_train = contingency_table_probabilistic(obs_train, fc_prob_train, 100)
                   h_test, fa_test, m_test, cn_test = contingency_table_probabilistic(obs_test, fc_prob_test, 100)
                   
                   # Plotting the precision-recall curve
                   plt.figure(figsize=(6.5, 6))
+
+                  p_train = precision(h_train, fa_train)
+                  hr_train = hit_rate(h_train, m_train)
+                  ref_train = np.sum(obs_train) / len(obs_train)
+                  auprc_train_all.append(average_precision_score(obs_train, fc_prob_train))
+                  plt.plot(hr_train, p_train, "-o", color = "#800080", lw = 3, ms=5)
                   p_test = precision(h_test, fa_test)
                   hr_test = hit_rate(h_test, m_test)
                   ref_test = np.sum(obs_test) / len(obs_test)
                   auprc_test_all.append(average_precision_score(obs_test, fc_prob_test))
                   plt.plot(hr_test, p_test, "-o", color = "#00B0F0", lw = 3, ms=5)
+
                   plt.plot([0,1], [ref_test, ref_test], "-", color = "#333333", lw = 2)
                   plt.xlabel("Recall", color = "#333333", fontsize = 28, labelpad = 15)
                   plt.ylabel("Precision", color = "#333333", fontsize = 28, labelpad = 15)
                   plt.tick_params(axis='x', colors='#333333', labelsize=28)
                   plt.tick_params(axis='y', colors='#333333', labelsize=28)
                   plt.xticks(np.arange(0, 1.01, 0.2))
-                  plt.yticks(np.arange(0, 0.41, 0.1))
+                  plt.yticks(np.arange(0, 1.01, 0.2))
                   fmt = FuncFormatter(lambda val, pos: f"{val:.1f}".lstrip("0") if abs(val) < 1 else f"{val:.1f}")
                   ax = plt.gca()
                   ax.xaxis.set_major_formatter(fmt)
                   ax.yaxis.set_major_formatter(fmt)
                   plt.grid(axis='y', linewidth=0.5, color='gainsboro')
                   plt.xlim([-0.02,1.02])
-                  plt.ylim([-0.02,0.42])
+                  plt.ylim([-0.02,1.02])
                   plt.tight_layout()
                   plt.savefig(f'{dir_out_temp}/pr_curve_{ml_trained}.png', dpi=1000)
                   plt.close()
 
                   # Plotting the ROC curve - Trapezium and Continuous
                   plt.figure(figsize=(6.5, 6))           
+                  
+                  hr_train = hit_rate(h_train, m_train)
+                  far_train = false_alarm_rate(fa_train, cn_train)
+                  aroc_train = aroc_trapezium(hr_train, far_train)
+                  plt.plot(far_train, hr_train, "-o", color = "#800080", lw = 3, ms=5, label = f"{aroc_train:.3f}")
+                  far_train_c, hr_train_c, thr_roc = roc_curve(obs_train, fc_prob_train)
+                  aroc_train_c = auc(far_train_c, hr_train_c)
+                  aroc_train_all.append(aroc_train_c)
+                  plt.plot(far_train_c, hr_train_c, "-", color = "#800080", lw = 1, ms=2, label = f"{aroc_train_c:.3f}")
+                  
                   hr_test = hit_rate(h_test, m_test)
                   far_test = false_alarm_rate(fa_test, cn_test)
                   aroc_test = aroc_trapezium(hr_test, far_test)
@@ -126,6 +160,7 @@ for loss_func in ["bce"]:
                   aroc_test_c = auc(far_test_c, hr_test_c)
                   aroc_test_all.append(aroc_test_c)
                   plt.plot(far_test_c, hr_test_c, "-", color = "#00B0F0", lw = 1, ms=2, label = f"{aroc_test_c:.3f}")
+                  
                   plt.plot([0,1], [0, 1], "-", color = "#333333", lw = 1)
                   plt.xlabel("False Alarm Rate", color = "#333333", fontsize = 28, labelpad = 15)
                   plt.ylabel("Hit Rate", color = "#333333", fontsize = 28)
@@ -147,8 +182,13 @@ for loss_func in ["bce"]:
 
                   # Plotting the reliability diagram
                   fig, ax = plt.subplots(figsize=(6.5, 6))
+
+                  mean_prob_fc_train, mean_freq_obs_train, sharpness_train = reliability_diagram(obs_train, fc_prob_train)
+                  plt.plot(mean_prob_fc_train, mean_freq_obs_train * 100, "-o", color = "#800080", lw = 3, ms=5)
+
                   mean_prob_fc_test, mean_freq_obs_test, sharpness_test = reliability_diagram(obs_test, fc_prob_test)
                   plt.plot(mean_prob_fc_test, mean_freq_obs_test * 100, "-o", color = "#00B0F0", lw = 3, ms=5)
+                  
                   plt.plot([0,100], [0, 100], color = "#333333", lw = 1)
                   plt.xlabel("Forecast probability", color = "#333333", fontsize = 28, labelpad = 15)
                   plt.ylabel("Observed frequency", color = "#333333", fontsize = 28, labelpad = 20)
@@ -165,7 +205,12 @@ for loss_func in ["bce"]:
                   plt.close()
 
                   # Computing the frequency bias
+                  fb_train_all.append(np.sum(fc_train) / np.sum(obs_train))
                   fb_test_all.append( np.sum(fc_test) / np.sum(obs_test))
+
+            print(auprc_train_all)
+            print(aroc_train_all)
+            print(fb_train_all)
 
             print(auprc_test_all)
             print(aroc_test_all)
