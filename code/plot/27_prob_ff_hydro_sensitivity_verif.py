@@ -151,7 +151,7 @@ for sensitivity_analysis in sensitivity_analysis_list:
       plt.plot(mean_prob_fc_test, mean_freq_obs_test * 100, "-o", color = "#00B0F0", lw = 3, ms=5)
       plt.plot([0,30], [0, 30], color = "#333333", lw = 1)
       plt.xlabel("Forecast probability", color = "#333333", fontsize = 28, labelpad = 15)
-      plt.ylabel("Observation frequency", color = "#333333", fontsize = 28, labelpad = 20)
+      plt.ylabel("Observed frequency", color = "#333333", fontsize = 28, labelpad = 20)
       plt.tick_params(axis='x', colors='#333333', labelsize=28)
       plt.tick_params(axis='y', colors='#333333', labelsize=28)
       ticks = np.arange(0, 101, 5)
